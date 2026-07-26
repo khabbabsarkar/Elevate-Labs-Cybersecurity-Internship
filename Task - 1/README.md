@@ -1,47 +1,25 @@
-Author
-Khabbab Sarker (innominate)
+# Task 1: Local Network Port Scan
 
-Date
-26-07-2026
+## Objective
+The goal of this task was to learn how to discover open ports on devices in my local network using Nmap.
 
-Objective
-Scan the local network 192.168.80.0/24 and identify open ports and services to understand network exposure.
+## Tools Used
+* **OS:** Kali Linux (in a VMware VM)
+* **Scanning Tool:** Nmap
 
-Environment
-Kali Linux (VM)
-Interface: eth0
-Local IP: 192.168.80.128
-Network: 192.168.80.0/24
-Commands run
-Discovery scan: sudo nmap -sS 192.168.80.0/24 -oN scan_results.txt
+## Process
+1.  I first identified my local network's IP range using the `ip a` command. My range was `192.168.140.0/24`.
+2.  I then executed a TCP SYN scan with the command: `sudo nmap -sS 192.168.140.0/24 -oN results.txt`.
+3.  The scan identified 4 active devices on the network.
 
-Targeted service & OS detection: sudo nmap -sV -O -p 135,139,445,2869,7070 192.168.80.1 -oN nmap_deep_192.168.80.1.txt
+## Findings & Risks
+* **Device 1 (IP: 192.168.140.1):** This device has ports 135 (msrpc) and 2179 (vmrdp) open. Open `msrpc` ports can sometimes be a risk if the system is not patched, as they have been targeted by worms in the past.
+* **Device 2 (IP: 192.168.140.2):** This device has port 53 (domain) open, indicating it is a DNS server. This is typical for a network router.
 
-SMB enumeration (NSE): sudo nmap --script smb-enum-shares,smb-os-discovery,smb-security-mode -p 139,445 192.168.80.1 -oN nmap_smb_enum_192.168.80.1.txt
+## Scan Results
+The full scan output is available in the `results.txt` file in this repository.
 
-(Optional) Wireshark packet capture:
+## Screenshots
+<img width="855" height="534" alt="Screenshot 2025-10-20 180505" src="https://github.com/user-attachments/assets/9f86b414-7042-4b48-b16f-58697e4b3bd1" />
 
-Filter used: tcp.port == 135 || tcp.port == 139 || tcp.port == 445 || tcp.port == 2869 || tcp.port == 7070
-Save as scan_capture.pcap
-Findings (summary)
-Host 192.168.80.1 — ports open: 135, 139, 445, 2869, 7070.
-Host 192.168.80.254 — filtered (no responding ports).
-Host 192.168.80.128 (this machine) — all scanned ports closed.
-Risk assessment
-SMB ports (139, 445) and RPC (135) are high-risk: possible lateral movement, file-share exposure, and remote code execution vulnerabilities if unpatched.
-UPnP (2869) can allow port mapping and info exposure.
-7070 (streaming / vendor service) could contain vulnerabilities depending on version.
-Mitigation steps recommended
-Patch host at 192.168.80.1.
-Disable SMBv1 and restrict SMB to trusted hosts.
-Disable UPnP on gateway if not required.
-Configure host firewall to block ports from WAN.
-Close unused ports and apply least privilege to management interfaces.
-Files included
-scan_results.txt
-nmap_deep_192.168.80.1.txt
-nmap_smb_enum_192.168.80.1.txt
-scan_capture.pcap
-screenshots/
-Notes
-All scans were performed on devices in my local network / VMs (authorized testing).
+<img width="555" height="526" alt="Screenshot 2025-10-20 180533" src="https://github.com/user-attachments/assets/20a0fb6b-a390-47f0-825b-c1b7b1f9dbf5" />
